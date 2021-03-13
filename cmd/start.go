@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ServerPort string
+	serverPort string
 	dbPort     string
 	dbPassword string
 	dbName     string
@@ -16,7 +16,7 @@ var (
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-	startCmd.PersistentFlags().StringVarP(&ServerPort, "Server-port", "", "4000", "This flag sets the ServerPort of the server")
+	startCmd.PersistentFlags().StringVarP(&serverPort, "server-port", "", "4000", "This flag sets the serverPort of the server")
 	startCmd.PersistentFlags().StringVarP(&dbPort, "db-port", "", "5432", "This flag sets the Database port of the database server")
 	startCmd.PersistentFlags().StringVarP(&dbPassword, "db-password", "", "pass", "This flag sets for the Database password")
 	startCmd.PersistentFlags().StringVarP(&dbName, "db-name", "", "library_management", "This flag sets for the Database name")
@@ -30,6 +30,6 @@ var startCmd = &cobra.Command{
 	Short: "This command will start the api server",
 	Long:  "This command will start the go-rest-api server",
 	Run: func(cmd *cobra.Command, args []string) {
-		server.StartAPIServer(ServerPort)
+		server.StartAPIServer(serverPort)
 	},
 }
