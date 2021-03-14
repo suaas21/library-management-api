@@ -64,3 +64,15 @@ func DeleteBookMethod(bookId int) (bool, error) {
 
 	return false, errors.New("no book found last one")
 }
+
+func ShowLoanHistory() (*model.AllBookHistory, error) {
+	AllbookHistory := model.AllBookHistory{}
+	var bookHistories []model.BookHistory
+	err := eng.Find(&bookHistories)
+	if err != nil {
+		return nil, err
+	}
+	AllbookHistory.BookHistory = append(AllbookHistory.BookHistory, bookHistories...)
+	return &AllbookHistory, nil
+}
+

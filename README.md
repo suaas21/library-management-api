@@ -3,17 +3,18 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/pkbhowmick/go-rest-api)](https://goreportcard.com/report/github.com/pkbhowmick/go-rest-api)
 
 The purpose of the API is to provide a management system for a library. There are two types of users in a Library.
-- `Author/Admin` 
+- `Admin` 
 - `Member/User`
 
-**Admin :** Admin have the permision to Create, Update, Remove books from library. S/he has also the permission of accept and reject book loan requested by the users. If the book loan is issued and returned then S/he update the database.
+**Admin :** Admin have the permission to Create, Update, Remove books from library. S/he has also the permission of accept and reject book loan requested by the users. If the book loan is issued and returned then S/he update the database.
 
-**Users :** Users have only the permission to view books details, book-loans and also search by author.
+**Users :** Users have only the permission to view books details, book-loans and also search by an author.
 
 ## Prerequisites
 
-- The api server have implemented by using `go-macaron`. Thats why at first you need to have a knowledge about [go-macaron](https://github.com/go-macaron/docs/blob/master/starter_guide.md)
-- Then you need to have a little bit of knowledge about [cobra flag](https://github.com/spf13/cobra)
+- This api server has implemented by using `go-macaron`. That's why at first you need to have a knowledge about [go-macaron](https://github.com/go-macaron/docs/blob/master/starter_guide.md). Actually this library is compatible to `go http`.
+- Then you need to have a knowledge of about [go-xrom](https://github.com/go-xorm/xorm)
+- And also have a little bit of knowledge about [cobra flag](https://github.com/spf13/cobra)
 
 ## To Start API Server
 **Clone repository and enter the working dir :**  
@@ -49,7 +50,7 @@ type User struct {
 	Mail     string `json:"mail"`
 	Password string `json:"password"`
 	PhoneNo  string `json:"phone_no"`
-	// type of user is handled by UserType : `Admin` and `normal User`
+	// type of user is handled by UserType : `admin` and `user`
 	UserType string `json:"user_type"`
 }
 ``````
@@ -88,8 +89,10 @@ type BookHistory struct {
 |GET| /user-profile/{userId} | No auth | Any type of user | Return a specific user in response | 
 |PATCH| /edit-profile | Bearer token | User/Member | Return the updated user profile data in response | 
 |POST| /loan-book | Bearer token | Admin | Admin can issue a book loan for the users | 
-|PUT| /returned-book | Bearer token | Admin | Admin can pust the returened book | 
+|PUT| /returned-book | Bearer token | Admin | Admin can put the returned book | 
+|GET| /loan-history | No Auth | Any type of User | User can view loan book details | 
 |POST| /book | Bearer token | Admin | Admin can create a new book |
+|PATCH| /edit-book | Bearer token | Admin | Admin can update book author |
 |GET| /book/{bookId} | No Auth | Any type of user  | Users can view specific book |
 |GET| /books | No Auth | Any type of user  | Users can view all listed book |  
 |DELETE| /delete-book/{id} | Bearer token | Admin | Delete the book data and returned the updated data in response | 
@@ -102,7 +105,7 @@ type BookHistory struct {
 |db-port|-|5432| library-management-api --db-port=5432 | database will be started in this port|
 |db-password|-|pass| library-management-api --db-password=pass | database password |
 |db-name|-|library_management| library-management-api --db-name=library_management | database name |
-|db-user|-|pass| library-management-api --db-user=postgres | database user |
+|db-user|-|postgres| library-management-api --db-user=postgres | database user |
 
 
 ## Some Sample Curl commands to the server
@@ -131,10 +134,16 @@ Registration for user
 $ curl -X POST -v -H "Content-Type:application/json" -d '{"id":"1","name":"sagor","mail":"sagor@gmail.com","password":"password","phone_no":"017771","user_type":"user"}' http://localhost:4000/register
 ```
 
-Login for Admin/User(you can get bearer token)
+Login for Admin/User(you will get bearer token)
 
 ```console
 $ curl -X GET -H "Content-Type:application/json" -d '{"mail":"sagor@gmail.com","password":"password"}' http://localhost:4000/login
+```
+
+Update user profile
+
+```console
+$ curl -X PATCH -H "Authorization: Bearer <user bearer token>" -d '{"name":"prince bhaiya","mail":"prince@gmail.com","password":"password","phone_no":"01777188559","user_type":"user"}' http://localhost:4000/edit-profile
 ```
 
 Get user profile with id 1
@@ -146,7 +155,31 @@ $ curl -X GET http://localhost:4000/user-profile/1
 Add New book 
 
 ```console
-$ curl -X POST -H "Authorization: Bearer <bearer token>" -H "Content-Type:application/json" -d '{"book_name":"hello world", "author":"sagor"}' http://localhost:4000/book
+$ curl -X POST -H "Authorization: Bearer <admin bearer token>" -H "Content-Type:application/json" -d '{"book_name":"hello world", "author":"sagor"}' http://localhost:4000/book
+```
+
+Update book
+
+```console
+$ curl -X PATCH -H "Authorization: Bearer <admin bearer token>" -d '{"book_name":"aryas life","author":"arya azad"}' http://localhost:4000/edit-book
+```
+
+Get loan book
+
+```console
+$ curl -X POST -H "Authorization: Bearer <admin bearer token>" -d '{"user_id":2,"book_id":2}' http://localhost:4000/loan-book
+```
+
+Show book loan history
+
+```console
+$ curl -X GET http://localhost:4000/loan-history
+```
+
+Return book from loan
+
+```console
+$ curl -X PUT -H "Authorization: Bearer <admin bearer token>" -d '{"user_id":2,"book_id":2}' http://localhost:4000/return-book
 ```
 
 Get all books info 
@@ -164,5 +197,5 @@ $ curl -X GET http://localhost:4000/book/1
 Delete book with given id
 
 ```console
-$ curl -X DELETE -H "Authorization: Bearer <berear token>" http://localhost:4000/delete-book/1
+$ curl -X DELETE -H "Authorization: Bearer <admin berear token>" http://localhost:4000/delete-book/1
 ``` 

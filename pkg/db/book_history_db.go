@@ -3,21 +3,26 @@ package db
 import (
 	"errors"
 	"fmt"
-
 	"github.com/suaas21/library-management-api/model"
 )
 
-func AddNewLoan(userId int, bookId int) (*model.BookHistory, error) {
+func AddBookLoan(userId int, bookId int) (*model.BookHistory, error) {
 	var user model.UserDB
 	var book model.Book
-	_, err := eng.ID(userId).Get(&user)
+	isUser, err := eng.ID(userId).Get(&user)
 	if err != nil {
 		return nil, err
 	}
-	_, err = eng.ID(bookId).Get(&book)
+
+	isBook, err := eng.ID(bookId).Get(&book)
 	if err != nil {
 		return nil, err
 	}
+
+	if !(isUser && isBook) {
+		return nil, fmt.Errorf("book/UserInfo is not available in db")
+	}
+
 	if book.NotAvailable {
 		return nil, fmt.Errorf("book is not available in stack")
 	}
@@ -68,11 +73,11 @@ func AddNewLoan(userId int, bookId int) (*model.BookHistory, error) {
 func UpdateBookHistory(userId int, bookId int) (*model.BookHistory, error) {
 	var bookHistory model.BookHistory
 	// 1st find the bookHistory from database using userId and bookId and returned = FALSE
-	okk, err := eng.Where("book_id=? AND user_id=? AND returned = FALSE", bookId, userId).Get(&bookHistory)
+	ok, err := eng.Where("book_id=? AND user_id=? AND returned = FALSE", bookId, userId).Get(&bookHistory)
 	if err != nil {
 		return nil, err
 	}
-	if okk {
+	if ok {
 		var book model.Book
 		_, err := eng.Id(bookId).Get(&book)
 		if err != nil {
@@ -115,4 +120,25 @@ func UpdateBookHistory(userId int, bookId int) (*model.BookHistory, error) {
 
 	}
 	return nil, fmt.Errorf("no returned book data found")
+}
+
+func UpdateBook(book model.Book) (*model.Book, error) {
+	var retrievedBook model.Book
+	// 1st find the book from database using bookId and returned = FALSE
+	ok, err := eng.Where("book_name=?", book.BookName).Get(&retrievedBook)
+	if err != nil {
+		return nil, err
+	}
+	if ok {
+		// update book author
+		if book.Author != "" {
+			retrievedBook.Author = book.Author
+		}
+		_, err := eng.ID(retrievedBook.Id).Update(retrievedBook)
+		if err != nil {
+			return nil, err
+		}
+		return &retrievedBook, nil
+	}
+	return nil, fmt.Errorf("no book found data by using name")
 }

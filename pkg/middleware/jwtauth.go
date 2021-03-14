@@ -36,9 +36,20 @@ func JwtMiddleWare(ctx *macaron.Context) {
 			return
 		} else {
 			// parsing the token from (bearer tokenString) with the secret key
-			token, _ := jwt.Parse(strings.Split(authHeader, " ")[1], func(token *jwt.Token) (interface{}, error) {
+			authHeaders := strings.Split(authHeader, " ")
+			var token *jwt.Token
+			var err error
+			if len(authHeaders) < 2 {
+				ctx.JSON(http.StatusUnauthorized, "no bearer token is provided")
+				return
+			}
+			token, err = jwt.Parse(authHeaders[1], func(token *jwt.Token) (interface{}, error) {
 				return MySigningKey, nil
 			})
+			if err != nil {
+				ctx.JSON(http.StatusUnauthorized, "no bearer token is provided")
+				return
+			}
 			//checking if there is any claim and s the token valid
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				fmt.Println("user validity : ok jwt")

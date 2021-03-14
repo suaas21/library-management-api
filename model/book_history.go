@@ -13,6 +13,10 @@ type BookHistory struct {
 	ReturnDate    string `xorm:"update updated " json:"return_date"`
 }
 
+type AllBookHistory struct {
+	BookHistory []BookHistory
+}
+
 func (BookHistory) TableName() string {
 	return "book_history"
 }

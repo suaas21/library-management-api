@@ -22,9 +22,12 @@ func StartAPIServer(port string) {
 	m.Get("/user-profile/:userId([0-9]+)", api.UserProfile)
 	m.Patch("/edit-profile", binding.Json(model.User{}), api.UpdateUserProfile)
 
-	m.Post("/loan-book", binding.Json(model.BookHistory{}), api.AddNewLoan)
+	m.Post("/loan-book", binding.Json(model.BookHistory{}), api.AddBookLoan)
+	m.Get("/loan-history", binding.Json(model.BookHistory{}), api.ShowLoanHistory)
 	m.Put("/return-book", binding.Json(model.BookHistory{}), api.ReturnBook)
+
 	m.Post("/book", binding.Json(model.Book{}), api.AddNewBook)
+	m.Patch("/edit-book", binding.Json(model.Book{}), api.UpdateBook)
 	m.Get("/books", api.ShowAllBook)
 	m.Get("/book/:bookId([0-9]+)", api.ShowBook)
 	m.Delete("/delete-book/:bookId([0-9]+)", api.DeleteBook)

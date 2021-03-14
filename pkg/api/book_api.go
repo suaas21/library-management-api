@@ -54,6 +54,27 @@ func ShowBook(ctx *macaron.Context) {
 	return
 }
 
+func UpdateBook(ctx *macaron.Context, book model.Book) {
+	currentUserType := ctx.Req.Header.Get("current_user_type")
+	if currentUserType != "admin" {
+		ctx.JSON(http.StatusNotAcceptable, "type of user didn't match")
+		return
+	}
+
+	bookName := book.BookName
+	if bookName == "" {
+		ctx.JSON(http.StatusBadRequest, "no book name is properly specified")
+		return
+	}
+
+	result, err := db.UpdateBook(book)
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, err.Error())
+	}
+
+	ctx.JSON(http.StatusCreated, result)
+}
+
 func DeleteBook(ctx *macaron.Context) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	if currentUserType != "admin" {
