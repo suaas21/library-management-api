@@ -1,23 +1,19 @@
-package api
+package controller
 
 import (
 	"fmt"
+	"github.com/suaas21/library-management-api/controller/authentication"
 	"net/http"
 	"strconv"
 
-	"gopkg.in/macaron.v1"
-
-	"github.com/suaas21/library-management-api/pkg/middleware"
-
 	"github.com/suaas21/library-management-api/model"
-
-	"github.com/suaas21/library-management-api/pkg/db"
+	"gopkg.in/macaron.v1"
 )
 
 var Users []model.User
 
-func Register(ctx *macaron.Context, user model.User) {
-	result, err := db.CreateUser(model.UserDBFormat(user))
+func (c Controller) Register(ctx *macaron.Context, user model.User) {
+	result, err := c.CreateUser(user)
 	if result == nil || err != nil {
 		ctx.JSON(http.StatusNotImplemented, fmt.Sprintf("the user already exist, err: %v", err.Error()))
 		return
@@ -26,7 +22,7 @@ func Register(ctx *macaron.Context, user model.User) {
 	ctx.JSON(http.StatusCreated, result)
 }
 
-func UserProfile(ctx *macaron.Context) {
+func (c Controller) UserProfile(ctx *macaron.Context) {
 	key := ctx.Params(":userId")
 	userId, err := strconv.Atoi(key)
 	if err != nil {
@@ -34,7 +30,7 @@ func UserProfile(ctx *macaron.Context) {
 		return
 	}
 
-	userResult, err := db.GetUserInfo(userId)
+	userResult, err := c.GetUserInfo(userId)
 	if userResult == nil || err != nil {
 		ctx.JSON(http.StatusBadRequest, "invalid user profile")
 		return
@@ -44,7 +40,7 @@ func UserProfile(ctx *macaron.Context) {
 	return
 }
 
-func UpdateUserProfile(ctx *macaron.Context, user model.User) {
+func (c Controller) UpdateUserProfile(ctx *macaron.Context, user model.User) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	currentUserMail := ctx.Req.Header.Get("current_user_mail")
 	if currentUserType != "user" {
@@ -53,7 +49,7 @@ func UpdateUserProfile(ctx *macaron.Context, user model.User) {
 	}
 	if currentUserMail != "" {
 		user.Mail = currentUserMail
-		resultUser, err := db.UpdateUserProfile(model.UserDBFormat(user))
+		resultUser, err := c.UpdateUserProfileToDB(user)
 		if err != nil {
 			ctx.JSON(http.StatusNotImplemented, "profile updating failed")
 			return
@@ -66,8 +62,8 @@ func UpdateUserProfile(ctx *macaron.Context, user model.User) {
 	return
 }
 
-func Login(ctx *macaron.Context, user model.User) {
-	userLoginInfo, err := db.GetUserLoginInfo(model.UserDBFormat(user))
+func (c Controller) Login(ctx *macaron.Context, user model.User) {
+	userLoginInfo, err := c.GetUserLoginInfo(user)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, err.Error())
 		return
@@ -77,7 +73,7 @@ func Login(ctx *macaron.Context, user model.User) {
 		return
 	}
 
-	tokenString, err := middleware.GenerateJWT(userLoginInfo.Mail, userLoginInfo.UserType, userLoginInfo.ID)
+	tokenString, err := authentication.GenerateJWT(userLoginInfo.Mail, userLoginInfo.UserType, userLoginInfo.ID)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, err.Error())
 		return

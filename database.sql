@@ -16,7 +16,7 @@ create table books (
     available BOOLEAN DEFAULT TRUE
 );
 
-create table book_history (
+create table book_loan_histories (
     history_id SERIAL PRIMARY KEY,
     book_id integer NOT NULL,
     book_name varchar(100) NOT NULL,

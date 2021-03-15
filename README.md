@@ -1,7 +1,5 @@
 # REST API Server for Library Management
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/pkbhowmick/go-rest-api)](https://goreportcard.com/report/github.com/pkbhowmick/go-rest-api)
-
 The purpose of the API is to provide a management system for a library. There are two types of users in a Library.
 - `Admin` 
 - `Member/User`
@@ -66,17 +64,17 @@ type Book struct {
 ``````
 - Book Loan Model
 ``````
-type BookHistory struct {
-	HistoryId int    `xorm:"pk autoincr history_id" json:"history_id"`
-	BookId    int    `xorm:"book_id" json:"book_id"`
-	UserId    int    `xorm:"user_id" json:"user_id"`
-	BookName  string `xorm:"book_name" json:"book_name"`
-	UserName  string `xorm:"user_name" json:"user_name"`
-	UserMail  string `xorm:"user_mail" json:"user_mail"`
-	Returned  bool   `xorm:"returned DEFAULT FALSE" json:"returned"`
+type User struct {
+	ID       int    `xorm:"pk autoincr id" json:"id"`
+	Name     string `xorm:"name" json:"name"`
+	Mail     string `xorm:"mail" json:"mail"`
+	Password string `xorm:"password" json:"password"`
+	PhoneNo  string `xorm:"phone_no" json:"phone_no"`
+	// type of user is handled by UserType : `admin` and `user`
+	UserType string `xorm:"user_type" json:"user_type"`
 
-	PurchasedDate string `xorm:"created" json:"purchased_date"`
-	ReturnDate    string `xorm:"update updated " json:"return_date"`
+	CreatedAt time.Time `xorm:"created" json:"created_at" `
+	UpdatedAt time.Time `xorm:"updated" json:"updated_at" `
 }
 ``````
 
@@ -125,7 +123,7 @@ $ library-management-api start
 Registration for Admin
 
 ```console
-$ curl -X POST -v -H "Content-Type:application/json" -d '{"id":"1","name":"azad","mail":"azad@gmail.com","password":"password","phone_no":"017771","user_type":"user"}' http://localhost:4000/register
+$ curl -X POST -v -H "Content-Type:application/json" -d '{"id":"1","name":"azad","mail":"azad@gmail.com","password":"password","phone_no":"017771","user_type":"admin"}' http://localhost:4000/register
 ```
 
 Registration for user
@@ -138,12 +136,15 @@ Login for Admin/User(you will get bearer token)
 
 ```console
 $ curl -X GET -H "Content-Type:application/json" -d '{"mail":"sagor@gmail.com","password":"password"}' http://localhost:4000/login
+
+$ curl -X GET -H "Content-Type:application/json" -d '{"mail":"azad@gmail.com","password":"password"}' http://localhost:4000/login
 ```
 
 Update user profile
 
 ```console
-$ curl -X PATCH -H "Authorization: Bearer <user bearer token>" -d '{"name":"prince bhaiya","mail":"prince@gmail.com","password":"password","phone_no":"01777188559","user_type":"user"}' http://localhost:4000/edit-profile
+$ $ curl -X PATCH -H "Authorization: Bearer <user bearer token>>" -d '{"name":"sagor","mail":"sagor@gmail.com","password":"password","phone_no":"017771885","user_type":"user"}' http://localhost:4000/edit-profile
+
 ```
 
 Get user profile with id 1
@@ -152,16 +153,18 @@ Get user profile with id 1
 $ curl -X GET http://localhost:4000/user-profile/1
 ``` 
 
-Add New book 
+Add some New book 
 
 ```console
 $ curl -X POST -H "Authorization: Bearer <admin bearer token>" -H "Content-Type:application/json" -d '{"book_name":"hello world", "author":"sagor"}' http://localhost:4000/book
+
+$ curl -X POST -H "Authorization: Bearer <admin bearer token>" -H "Content-Type:application/json" -d '{"book_name":"Azad life story", "author":"azad"}' http://localhost:4000/book
 ```
 
 Update book
 
 ```console
-$ curl -X PATCH -H "Authorization: Bearer <admin bearer token>" -d '{"book_name":"aryas life","author":"arya azad"}' http://localhost:4000/edit-book
+$ curl -X PATCH -H "Authorization: Bearer <admin bearer token>" -d '{"book_name":"Azad life story","author":"arya azad"}' http://localhost:4000/edit-book
 ```
 
 Get loan book

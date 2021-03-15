@@ -2,8 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/suaas21/library-management-api/pkg/db"
-	"github.com/suaas21/library-management-api/pkg/server"
+	"github.com/suaas21/library-management-api/server"
 )
 
 var (
@@ -21,8 +20,6 @@ func init() {
 	startCmd.PersistentFlags().StringVarP(&dbPassword, "db-password", "", "pass", "This flag sets for the Database password")
 	startCmd.PersistentFlags().StringVarP(&dbName, "db-name", "", "library_management", "This flag sets for the Database name")
 	startCmd.PersistentFlags().StringVarP(&dbUser, "db-user", "", "postgres", "This flag sets for the Database user")
-
-	db.InitializeDB(dbUser, dbPassword, dbName, dbPort)
 }
 
 var startCmd = &cobra.Command{
@@ -30,6 +27,13 @@ var startCmd = &cobra.Command{
 	Short: "This command will start the api server",
 	Long:  "This command will start the go-rest-api server",
 	Run: func(cmd *cobra.Command, args []string) {
-		server.StartAPIServer(serverPort)
+		svr := server.Server{
+			ServerPort: serverPort,
+			DBPort:     dbPort,
+			DBPassword: dbPassword,
+			DBName:     dbName,
+			DBUser:     dbUser,
+		}
+		svr.StartAPIServer()
 	},
 }

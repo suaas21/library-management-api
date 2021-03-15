@@ -7,7 +7,7 @@ type Book struct {
 	BookName     string    `xorm:"book_name unique" json:"book_name"`
 	Author       string    `xorm:"author" json:"author"`
 	NotAvailable bool      `xorm:"not_available DEFAULT FALSE" json:"not_available"`
-	CreatedAt    time.Time `xorm:"created" json:"created_at" `
+	CreatedAt    time.Time `xorm:"created" json:"created_at"`
 }
 
 type Books struct {

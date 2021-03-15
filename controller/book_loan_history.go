@@ -1,4 +1,4 @@
-package api
+package controller
 
 import (
 	"net/http"
@@ -6,10 +6,9 @@ import (
 	"gopkg.in/macaron.v1"
 
 	"github.com/suaas21/library-management-api/model"
-	"github.com/suaas21/library-management-api/pkg/db"
 )
 
-func AddBookLoan(ctx *macaron.Context, bookHistory model.BookHistory) {
+func (c Controller) AddBookLoan(ctx *macaron.Context, bookHistory model.BookLoanHistory) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	if currentUserType != "admin" {
 		ctx.JSON(http.StatusBadGateway, "only admin can update purchase book info")
@@ -18,11 +17,11 @@ func AddBookLoan(ctx *macaron.Context, bookHistory model.BookHistory) {
 
 	userId := bookHistory.UserId
 	bookId := bookHistory.BookId
-	if userId > 0 && bookId > 0 {
+	if userId <= 0 || bookId <= 0 {
 		ctx.JSON(http.StatusBadGateway, "invalid user/book id")
 		return
 	}
-	bookLoan, err := db.AddBookLoan(userId, bookId)
+	bookLoan, err := c.AddBookLoanToDB(userId, bookId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -31,8 +30,8 @@ func AddBookLoan(ctx *macaron.Context, bookHistory model.BookHistory) {
 	ctx.JSON(http.StatusOK, bookLoan)
 }
 
-func ShowLoanHistory(ctx *macaron.Context) {
-	loanHistories, err := db.ShowLoanHistory()
+func (c Controller) ShowLoanHistory(ctx *macaron.Context) {
+	loanHistories, err := c.ShowBookLoanHistories()
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 		return
@@ -42,7 +41,7 @@ func ShowLoanHistory(ctx *macaron.Context) {
 	return
 }
 
-func ReturnBook(ctx *macaron.Context, bookHistory model.BookHistory) {
+func (c Controller) ReturnBook(ctx *macaron.Context, bookHistory model.BookLoanHistory) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	if currentUserType != "admin" {
 		ctx.JSON(http.StatusUnauthorized, "user type didn't match")
@@ -51,12 +50,12 @@ func ReturnBook(ctx *macaron.Context, bookHistory model.BookHistory) {
 
 	userId := bookHistory.UserId
 	bookId := bookHistory.BookId
-	if userId > 0 && bookId > 0 {
+	if userId <= 0 || bookId <= 0 {
 		ctx.JSON(http.StatusBadGateway, "invalid user/book id")
 		return
 	}
 
-	result, err := db.UpdateBookHistory(userId, bookId)
+	result, err := c.UpdateBookLoanHistory(userId, bookId)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 	}

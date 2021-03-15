@@ -1,4 +1,4 @@
-package middleware
+package authentication
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ var MySigningKey = []byte("secret1234")
 
 func JwtMiddleWare(ctx *macaron.Context) {
 
-	fmt.Println("here middleware ")
+	fmt.Println("here authencation ")
 	fmt.Println(ctx.Req.URL.Path)
 
 	//if get then here, have given access to the user with or without token
@@ -25,7 +25,7 @@ func JwtMiddleWare(ctx *macaron.Context) {
 		ctx.Next()
 	} else {
 		//in case of other write operation, need to check if the user is valid
-		fmt.Println("checking with jwt middleware")
+		fmt.Println("checking with jwt authencation")
 
 		//retrieve the auth header
 		authHeader := ctx.Req.Header.Get("Authorization")
@@ -105,3 +105,4 @@ func GenerateJWT(userMail string, userType string, userId int) (string, error) {
 	return tokeString, err
 
 }
+
