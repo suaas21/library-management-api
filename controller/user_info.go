@@ -73,7 +73,7 @@ func (c Controller) Login(ctx *macaron.Context, user model.User) {
 		return
 	}
 
-	tokenString, err := authentication.GenerateJWT(userLoginInfo.Mail, userLoginInfo.UserType, userLoginInfo.ID)
+	tokenString, err := authentication.GenerateJWT(userLoginInfo.Mail, userLoginInfo.UserType, userLoginInfo.Id)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, err.Error())
 		return

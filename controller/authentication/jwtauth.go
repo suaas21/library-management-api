@@ -20,7 +20,7 @@ func JwtMiddleWare(ctx *macaron.Context) {
 	fmt.Println(ctx.Req.URL.Path)
 
 	//if get then here, have given access to the user with or without token
-	if ctx.Req.Method == "GET" || ctx.Req.URL.Path == "/register" {
+	if ctx.Req.Method == "GET" || ctx.Req.URL.Path == "/register" || ctx.Req.URL.Path == "/request" || ctx.Req.URL.Path == "/edit-request" {
 		log.Println(ctx.Req.Method, "request")
 		ctx.Next()
 	} else {
@@ -54,7 +54,6 @@ func JwtMiddleWare(ctx *macaron.Context) {
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				fmt.Println("user validity : ok jwt")
 
-				//fmt.Println(claims)
 				//retrieving the claims info
 				userId, okId := claims["userId"].(float64)
 
@@ -64,20 +63,16 @@ func JwtMiddleWare(ctx *macaron.Context) {
 				CurrentUserType, okType := claims["userType"].(string)
 
 				if okId && okMail && okType {
-
 					ctx.Req.Header.Set("current_user_id", string(CurrentUserId))
 					ctx.Req.Header.Set("current_user_type", string(CurrentUserType))
 					ctx.Req.Header.Set("current_user_mail", string(CurrentUserMail))
-					//fmt.Println(CurrentUserId, CurrentUserMail, CurrentUserType, okMail, okType)
 					ctx.Next()
 				} else {
-
 					ctx.JSON(http.StatusNotAcceptable, "the token is not valid .missing some info")
 					return
 				}
 
 			} else {
-
 				ctx.JSON(http.StatusUnauthorized, "need auth token")
 				return
 			}

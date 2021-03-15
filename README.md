@@ -43,13 +43,16 @@ There are three types of data model we have introduced to design the api. the fo
 - User Model
 ``````
 type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Mail     string `json:"mail"`
-	Password string `json:"password"`
-	PhoneNo  string `json:"phone_no"`
-	// type of user is handled by UserType : `admin` and `user`
-	UserType string `json:"user_type"`
+	Id       int    `xorm:"pk autoincr id" json:"id"`
+	Name     string `xorm:"name" json:"name"`
+	Mail     string `xorm:"mail" json:"mail"`
+	Password string `xorm:"password" json:"password"`
+	PhoneNo  string `xorm:"phone_no" json:"phone_no"`
+	// type of user is handled by UserType : `admin` and `member`
+	UserType string `xorm:"user_type" json:"user_type"`
+
+	CreatedAt time.Time `xorm:"created" json:"created_at" `
+	UpdatedAt time.Time `xorm:"updated" json:"updated_at" `
 }
 ``````
 - Book Model
@@ -59,22 +62,29 @@ type Book struct {
 	BookName     string    `xorm:"book_name unique" json:"book_name"`
 	Author       string    `xorm:"author" json:"author"`
 	NotAvailable bool      `xorm:"not_available DEFAULT FALSE" json:"not_available"`
-	CreatedAt    time.Time `xorm:"created" json:"created_at" `
+	CreatedAt    time.Time `xorm:"created" json:"created_at"`
 }
 ``````
 - Book Loan Model
 ``````
-type User struct {
-	ID       int    `xorm:"pk autoincr id" json:"id"`
-	Name     string `xorm:"name" json:"name"`
-	Mail     string `xorm:"mail" json:"mail"`
-	Password string `xorm:"password" json:"password"`
-	PhoneNo  string `xorm:"phone_no" json:"phone_no"`
-	// type of user is handled by UserType : `admin` and `user`
-	UserType string `xorm:"user_type" json:"user_type"`
+type BookLoanHistory struct {
+	Id     int `xorm:"pk autoincr id" json:"id"`
+	BookId int `xorm:"book_id" json:"book_id"`
+	UserId int `xorm:"user_id" json:"user_id"`
 
-	CreatedAt time.Time `xorm:"created" json:"created_at" `
-	UpdatedAt time.Time `xorm:"updated" json:"updated_at" `
+	Returned      bool   `xorm:"returned DEFAULT FALSE" json:"returned"`
+	PurchasedDate string `xorm:"created" json:"purchased_date"`
+	ReturnDate    string `xorm:"update updated " json:"return_date"`
+}
+``````
+- Book Request Model
+``````
+type BookRequest struct {
+	Id     int    `xorm:"id pk autoincr" json:"id"`
+	UserId int    `xorm:"user_id" json:"user_id"`
+	BookId int    `xorm:"book_id" json:"book_id"`
+	// requet status: `Pending`, `Rejected` or `Accepted` 
+	Status string `xorm:"status DEFAULT Pending" json:"status"`
 }
 ``````
 

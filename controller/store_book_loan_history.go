@@ -29,7 +29,7 @@ func (c Controller) AddBookLoanToDB(userId int, bookId int) (*model.BookLoanHist
 	}
 
 	bookHistory := model.BookLoanHistory{
-		UserId:   user.ID,
+		UserId:   user.Id,
 		BookId:   book.Id,
 	}
 	book.NotAvailable = true
@@ -98,7 +98,7 @@ func (c Controller) UpdateBookLoanHistory(userId int, bookId int) (*model.BookLo
 		// bookHistory found in store, so update the store for specific bookHistory
 		bookHistory.Returned = true
 		bookHistory.ReturnDate = time.Now().String()
-		_, err = c.Eng.Id(bookHistory.HistoryId).UseBool().Update(&bookHistory)
+		_, err = c.Eng.Id(bookHistory.Id).UseBool().Update(&bookHistory)
 		if err != nil {
 			return nil, err
 		}

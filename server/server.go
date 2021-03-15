@@ -46,5 +46,11 @@ func (svr Server) StartAPIServer() {
 	m.Get("/book/:bookId([0-9]+)", eng.ShowBookById)
 	m.Delete("/delete-book/:bookId([0-9]+)", eng.DeleteBook)
 
+	m.Post("/request", binding.Json(model.BookRequest{}), eng.AddBookRequest)
+	m.Get("/request", eng.ShowBookRequests)
+	m.Get("/request/:id([0-9]+)", eng.ShowBookRequestById)
+	m.Patch("/edit-request", binding.Json(model.BookRequest{}), eng.UpdateBookRequest)
+	m.Delete("/delete-request/:id([0-9]+)", eng.DeleteBookRequest)
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%v", svr.ServerPort), m))
 }

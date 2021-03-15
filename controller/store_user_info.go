@@ -59,7 +59,7 @@ func (c Controller) UpdateUserProfileToDB(user model.User) (*model.User, error) 
 		if user.Password != "" {
 			retrievedUser.Password = user.Password
 		}
-		_, err := c.Eng.ID(retrievedUser.ID).Update(retrievedUser)
+		_, err := c.Eng.ID(retrievedUser.Id).Update(retrievedUser)
 		if err != nil {
 			return nil, err
 		}

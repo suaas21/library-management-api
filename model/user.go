@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	ID       int    `xorm:"pk autoincr id" json:"id"`
+	Id       int    `xorm:"pk autoincr id" json:"id"`
 	Name     string `xorm:"name" json:"name"`
 	Mail     string `xorm:"mail" json:"mail"`
 	Password string `xorm:"password" json:"password"`

@@ -17,14 +17,19 @@ create table books (
 );
 
 create table book_loan_histories (
-    history_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     book_id integer NOT NULL,
-    book_name varchar(100) NOT NULL,
     user_id integer NOT NULL ,
-    user_name varchar(50) NOT NULL,
     purchased_date varchar(50) NOT NULL,
     return_date varchar(50) NOT NULL,
     returned BOOLEAN DEFAULT False
+);
+
+create table book_requests (
+    id SERIAL PRIMARY KEY,
+    book_id integer NOT NULL,
+    user_id integer NOT NULL ,
+    status varchar(20) DEFAULT 'Pending'
 );
 
 

@@ -1,11 +1,11 @@
 package model
 
 type BookLoanHistory struct {
-	HistoryId int    `xorm:"pk autoincr history_id" json:"history_id"`
-	BookId    int    `xorm:"book_id" json:"book_id"`
-	UserId    int    `xorm:"user_id" json:"user_id"`
+	Id     int `xorm:"pk autoincr id" json:"id"`
+	BookId int `xorm:"book_id" json:"book_id"`
+	UserId int `xorm:"user_id" json:"user_id"`
 
-	Returned  bool   `xorm:"returned DEFAULT FALSE" json:"returned"`
+	Returned      bool   `xorm:"returned DEFAULT FALSE" json:"returned"`
 	PurchasedDate string `xorm:"created" json:"purchased_date"`
 	ReturnDate    string `xorm:"update updated " json:"return_date"`
 }
@@ -21,5 +21,3 @@ func (BookLoanHistories) TableName() string {
 func (BookLoanHistory) TableName() string {
 	return "book_loan_histories"
 }
-
-
