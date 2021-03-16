@@ -1,14 +1,13 @@
 package controller
 
 import (
+	"github.com/suaas21/library-management-api/database"
 	"net/http"
 
 	"gopkg.in/macaron.v1"
-
-	"github.com/suaas21/library-management-api/model"
 )
 
-func (c Controller) AddBookLoan(ctx *macaron.Context, bookHistory model.BookLoanHistory) {
+func AddBookLoan(ctx *macaron.Context, bookHistory database.BookLoanHistory) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	if currentUserType != "admin" {
 		ctx.JSON(http.StatusBadGateway, "only admin can update purchase book info")
@@ -21,7 +20,7 @@ func (c Controller) AddBookLoan(ctx *macaron.Context, bookHistory model.BookLoan
 		ctx.JSON(http.StatusBadGateway, "invalid user/book id")
 		return
 	}
-	bookLoan, err := c.AddBookLoanToDB(userId, bookId)
+	bookLoan, err := database.AddBookLoanToDB(userId, bookId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -30,8 +29,8 @@ func (c Controller) AddBookLoan(ctx *macaron.Context, bookHistory model.BookLoan
 	ctx.JSON(http.StatusOK, bookLoan)
 }
 
-func (c Controller) ShowLoanHistory(ctx *macaron.Context) {
-	loanHistories, err := c.ShowBookLoanHistories()
+func ShowLoanHistory(ctx *macaron.Context) {
+	loanHistories, err := database.ShowBookLoanHistories()
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 		return
@@ -41,7 +40,7 @@ func (c Controller) ShowLoanHistory(ctx *macaron.Context) {
 	return
 }
 
-func (c Controller) ReturnBook(ctx *macaron.Context, bookHistory model.BookLoanHistory) {
+func ReturnBook(ctx *macaron.Context, bookHistory database.BookLoanHistory) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	if currentUserType != "admin" {
 		ctx.JSON(http.StatusUnauthorized, "user type didn't match")
@@ -55,7 +54,7 @@ func (c Controller) ReturnBook(ctx *macaron.Context, bookHistory model.BookLoanH
 		return
 	}
 
-	result, err := c.UpdateBookLoanHistory(userId, bookId)
+	result, err := database.UpdateBookLoanHistory(userId, bookId)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 	}

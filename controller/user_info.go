@@ -3,17 +3,15 @@ package controller
 import (
 	"fmt"
 	"github.com/suaas21/library-management-api/controller/authentication"
+	"github.com/suaas21/library-management-api/database"
 	"net/http"
 	"strconv"
 
-	"github.com/suaas21/library-management-api/model"
 	"gopkg.in/macaron.v1"
 )
 
-var Users []model.User
-
-func (c Controller) Register(ctx *macaron.Context, user model.User) {
-	result, err := c.CreateUser(user)
+func Register(ctx *macaron.Context, user database.User) {
+	result, err := database.CreateUser(user)
 	if result == nil || err != nil {
 		ctx.JSON(http.StatusNotImplemented, fmt.Sprintf("the user already exist, err: %v", err.Error()))
 		return
@@ -22,7 +20,7 @@ func (c Controller) Register(ctx *macaron.Context, user model.User) {
 	ctx.JSON(http.StatusCreated, result)
 }
 
-func (c Controller) UserProfile(ctx *macaron.Context) {
+func UserProfile(ctx *macaron.Context) {
 	key := ctx.Params(":userId")
 	userId, err := strconv.Atoi(key)
 	if err != nil {
@@ -30,7 +28,7 @@ func (c Controller) UserProfile(ctx *macaron.Context) {
 		return
 	}
 
-	userResult, err := c.GetUserInfo(userId)
+	userResult, err := database.GetUserInfo(userId)
 	if userResult == nil || err != nil {
 		ctx.JSON(http.StatusBadRequest, "invalid user profile")
 		return
@@ -40,7 +38,7 @@ func (c Controller) UserProfile(ctx *macaron.Context) {
 	return
 }
 
-func (c Controller) UpdateUserProfile(ctx *macaron.Context, user model.User) {
+func UpdateUserProfile(ctx *macaron.Context, user database.User) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	currentUserMail := ctx.Req.Header.Get("current_user_mail")
 	if currentUserType != "user" {
@@ -49,7 +47,7 @@ func (c Controller) UpdateUserProfile(ctx *macaron.Context, user model.User) {
 	}
 	if currentUserMail != "" {
 		user.Mail = currentUserMail
-		resultUser, err := c.UpdateUserProfileToDB(user)
+		resultUser, err := database.UpdateUserProfileToDB(user)
 		if err != nil {
 			ctx.JSON(http.StatusNotImplemented, "profile updating failed")
 			return
@@ -62,8 +60,8 @@ func (c Controller) UpdateUserProfile(ctx *macaron.Context, user model.User) {
 	return
 }
 
-func (c Controller) Login(ctx *macaron.Context, user model.User) {
-	userLoginInfo, err := c.GetUserLoginInfo(user)
+func Login(ctx *macaron.Context, user database.User) {
+	userLoginInfo, err := database.GetUserLoginInfo(user)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, err.Error())
 		return

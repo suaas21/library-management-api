@@ -15,12 +15,9 @@ import (
 var MySigningKey = []byte("secret1234")
 
 func JwtMiddleWare(ctx *macaron.Context) {
-
-	fmt.Println("here authencation ")
 	fmt.Println(ctx.Req.URL.Path)
-
 	//if get then here, have given access to the user with or without token
-	if ctx.Req.Method == "GET" || ctx.Req.URL.Path == "/register" || ctx.Req.URL.Path == "/request" || ctx.Req.URL.Path == "/edit-request" {
+	if ctx.Req.Method == "GET" || ctx.Req.URL.Path == "/register" {
 		log.Println(ctx.Req.Method, "request")
 		ctx.Next()
 	} else {

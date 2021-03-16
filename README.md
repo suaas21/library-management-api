@@ -77,14 +77,14 @@ type BookLoanHistory struct {
 	ReturnDate    string `xorm:"update updated " json:"return_date"`
 }
 ``````
-- Book Request Model
+- Book Loan Request Model
 ``````
-type BookRequest struct {
-	Id     int    `xorm:"id pk autoincr" json:"id"`
-	UserId int    `xorm:"user_id" json:"user_id"`
-	BookId int    `xorm:"book_id" json:"book_id"`
+type BookLoanRequest struct {
+	Id         int       `xorm:"id pk autoincr" json:"id"`
+	UserId     int       `xorm:"user_id" json:"user_id"`
+	BookId     int       `xorm:"book_id" json:"book_id"`
 	// requet status: `Pending`, `Rejected` or `Accepted` 
-	Status string `xorm:"status DEFAULT Pending" json:"status"`
+	Status     string    `xorm:"status" json:"status"`
 }
 ``````
 
@@ -102,9 +102,12 @@ type BookRequest struct {
 |POST| /book | Bearer token | Admin | Admin can create a new book |
 |PATCH| /edit-book | Bearer token | Admin | Admin can update book author |
 |GET| /book/{bookId} | No Auth | Any type of user  | Users can view specific book |
-|GET| /books | No Auth | Any type of user  | Users can view all listed book |  
+|GET| /books | No Auth | Any type of user  | Users can view all listed book |
 |DELETE| /delete-book/{id} | Bearer token | Admin | Delete the book data and returned the updated data in response | 
-
+|POST| /request | Bearer token | User | User can request for book loan |
+|GET| /requests | No Auth | Any type of user | User/Admin can get requested book loan info |
+|PATCH| /edit-request | Bearer token | Admin | Only amin can edit the request for book loan(Accepted/Rejected) |
+|DELETE| /delete-request | Bearer token | Admin | Only admin delete the request for book loan |
 ## Available Flags
 
 | Flag | Shorthand | Default value | Example | Description
@@ -133,13 +136,13 @@ $ library-management-api start
 Registration for Admin
 
 ```console
-$ curl -X POST -v -H "Content-Type:application/json" -d '{"id":"1","name":"azad","mail":"azad@gmail.com","password":"password","phone_no":"017771","user_type":"admin"}' http://localhost:4000/register
+$ curl -X POST -v -H "Content-Type:application/json" -d '{"name":"azad","mail":"azad@gmail.com","password":"password","phone_no":"017771","user_type":"admin"}' http://localhost:4000/register
 ```
 
 Registration for user
 
 ```console
-$ curl -X POST -v -H "Content-Type:application/json" -d '{"id":"1","name":"sagor","mail":"sagor@gmail.com","password":"password","phone_no":"017771","user_type":"user"}' http://localhost:4000/register
+$ curl -X POST -v -H "Content-Type:application/json" -d '{"name":"sagor","mail":"sagor@gmail.com","password":"password","phone_no":"017771","user_type":"user"}' http://localhost:4000/register
 ```
 
 Login for Admin/User(you will get bearer token)
@@ -153,7 +156,7 @@ $ curl -X GET -H "Content-Type:application/json" -d '{"mail":"azad@gmail.com","p
 Update user profile
 
 ```console
-$ $ curl -X PATCH -H "Authorization: Bearer <user bearer token>>" -d '{"name":"sagor","mail":"sagor@gmail.com","password":"password","phone_no":"017771885","user_type":"user"}' http://localhost:4000/edit-profile
+$ curl -X PATCH -H "Authorization: Bearer <user bearer token>" -d '{"name":"sagor","mail":"sagor@gmail.com","password":"password","phone_no":"017771885","user_type":"user"}' http://localhost:4000/edit-profile
 
 ```
 
@@ -206,6 +209,30 @@ Get a specific book with id 1
 ```console
 $ curl -X GET http://localhost:4000/book/1
 ``` 
+
+Request book loan
+
+```console
+$ curl -X POST -v -H "Content-Type:application/json" -H "Authorization: Bearer <user bearer token>" -d '{"user_id":1,"book_id":1}' http://localhost:4000/request
+```
+
+Show Requested book loan
+```console
+$ curl -X GET http://localhost:4000/requests
+$ curl -X GET http://localhost:4000/request/2
+```
+
+Update Requested Book Loan(Accepted/Rejected depends on availability)
+
+```console
+$ curl -X PATCH -H -H "Content-Type:application/json" -H "Authorization: Bearer <admin bearer token>" -d '{"user_id":1,"book_id":1}' http://localhost:4000/edit-request
+```
+
+Delete Request Book Loan
+
+```console
+$ curl -X DELETE -H "Authorization: Bearer <admin bearer token>"  http://localhost:4000/delete-request/1
+```
 
 Delete book with given id
 

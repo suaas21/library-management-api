@@ -25,7 +25,8 @@ create table book_loan_histories (
     returned BOOLEAN DEFAULT False
 );
 
-create table book_requests (
+
+create table book_loan_requests (
     id SERIAL PRIMARY KEY,
     book_id integer NOT NULL,
     user_id integer NOT NULL ,

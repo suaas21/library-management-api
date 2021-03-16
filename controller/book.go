@@ -1,26 +1,21 @@
 package controller
 
 import (
-	"github.com/go-xorm/xorm"
+	"github.com/suaas21/library-management-api/database"
 	"net/http"
 	"strconv"
 
-	"github.com/suaas21/library-management-api/model"
 	"gopkg.in/macaron.v1"
 )
 
-type Controller struct {
-	Eng *xorm.Engine
-}
-
-func (c Controller) AddBook(ctx *macaron.Context, book model.Book) {
+func AddBook(ctx *macaron.Context, book database.Book) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	if currentUserType != "admin" {
 		ctx.JSON(http.StatusBadGateway, "user is not admin")
 		return
 	}
 
-	resultBook, err := c.AddBookToDB(book)
+	resultBook, err := database.AddBookToDB(book)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 		return
@@ -29,8 +24,8 @@ func (c Controller) AddBook(ctx *macaron.Context, book model.Book) {
 	ctx.JSON(http.StatusCreated, resultBook)
 }
 
-func (c Controller) ShowBooks(ctx *macaron.Context) {
-	resultBooks, err := c.ShowBooksFromDB()
+func ShowBooks(ctx *macaron.Context) {
+	resultBooks, err := database.ShowBooksFromDB()
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 		return
@@ -40,7 +35,7 @@ func (c Controller) ShowBooks(ctx *macaron.Context) {
 	return
 }
 
-func (c Controller) ShowBookById(ctx *macaron.Context) {
+func ShowBookById(ctx *macaron.Context) {
 	key := ctx.Params(":bookId")
 	bookId, err := strconv.Atoi(key)
 	if err != nil {
@@ -48,7 +43,7 @@ func (c Controller) ShowBookById(ctx *macaron.Context) {
 		return
 	}
 
-	resultBook, err := c.ShowBookByIdFromDB(bookId)
+	resultBook, err := database.ShowBookByIdFromDB(bookId)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 		return
@@ -58,7 +53,7 @@ func (c Controller) ShowBookById(ctx *macaron.Context) {
 	return
 }
 
-func (c Controller) UpdateBook(ctx *macaron.Context, book model.Book) {
+func UpdateBook(ctx *macaron.Context, book database.Book) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	if currentUserType != "admin" {
 		ctx.JSON(http.StatusNotAcceptable, "type of user didn't match")
@@ -71,7 +66,7 @@ func (c Controller) UpdateBook(ctx *macaron.Context, book model.Book) {
 		return
 	}
 
-	result, err := c.UpdateBookToDB(book)
+	result, err := database.UpdateBookToDB(book)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 	}
@@ -79,7 +74,7 @@ func (c Controller) UpdateBook(ctx *macaron.Context, book model.Book) {
 	ctx.JSON(http.StatusCreated, result)
 }
 
-func (c Controller) DeleteBook(ctx *macaron.Context) {
+func DeleteBook(ctx *macaron.Context) {
 	currentUserType := ctx.Req.Header.Get("current_user_type")
 	if currentUserType != "admin" {
 		ctx.JSON(http.StatusBadRequest, "user is not admin")
@@ -92,7 +87,7 @@ func (c Controller) DeleteBook(ctx *macaron.Context) {
 		return
 	}
 
-	_, err = c.DeleteBookFromDB(bookId)
+	_, err = database.DeleteBookFromDB(bookId)
 	if err == nil {
 		ctx.JSON(http.StatusResetContent, "book has been deleted")
 		return

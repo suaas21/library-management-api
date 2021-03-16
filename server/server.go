@@ -5,7 +5,7 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/suaas21/library-management-api/controller"
 	"github.com/suaas21/library-management-api/controller/authentication"
-	"github.com/suaas21/library-management-api/model"
+	"github.com/suaas21/library-management-api/database"
 	"gopkg.in/macaron.v1"
 	"log"
 	"net/http"
@@ -20,37 +20,34 @@ type Server struct {
 }
 
 
-func (svr Server) StartAPIServer() {
-	svr.InitializeDB()
+func StartAPIServer(port string) {
+	database.InitializeDB()
 
 	m := macaron.Classic()
 
 	m.Use(macaron.Renderer())
 	m.Use(authentication.JwtMiddleWare)
 
-	eng := controller.Controller{
-		Eng: eng,
-	}
-	m.Get("/login", binding.Json(model.User{}), eng.Login)
-	m.Post("/register", binding.Json(model.User{}),eng.Register)
-	m.Get("/user-profile/:userId([0-9]+)", eng.UserProfile)
-	m.Patch("/edit-profile", binding.Json(model.User{}), eng.UpdateUserProfile)
+	m.Get("/login", binding.Json(database.User{}), controller.Login)
+	m.Post("/register", binding.Json(database.User{}),controller.Register)
+	m.Get("/user-profile/:userId([0-9]+)", controller.UserProfile)
+	m.Patch("/edit-profile", binding.Json(database.User{}), controller.UpdateUserProfile)
 
-	m.Post("/loan-book", binding.Json(model.BookLoanHistory{}), eng.AddBookLoan)
-	m.Get("/loan-history", binding.Json(model.BookLoanHistory{}), eng.ShowLoanHistory)
-	m.Put("/return-book", binding.Json(model.BookLoanHistory{}), eng.ReturnBook)
+	m.Post("/loan-book", binding.Json(database.BookLoanHistory{}), controller.AddBookLoan)
+	m.Get("/loan-history", binding.Json(database.BookLoanHistory{}), controller.ShowLoanHistory)
+	m.Put("/return-book", binding.Json(database.BookLoanHistory{}), controller.ReturnBook)
 
-	m.Post("/book", binding.Json(model.Book{}), eng.AddBook)
-	m.Patch("/edit-book", binding.Json(model.Book{}), eng.UpdateBook)
-	m.Get("/books", eng.ShowBooks)
-	m.Get("/book/:bookId([0-9]+)", eng.ShowBookById)
-	m.Delete("/delete-book/:bookId([0-9]+)", eng.DeleteBook)
+	m.Post("/book", binding.Json(database.Book{}), controller.AddBook)
+	m.Patch("/edit-book", binding.Json(database.Book{}), controller.UpdateBook)
+	m.Get("/books", controller.ShowBooks)
+	m.Get("/book/:bookId([0-9]+)", controller.ShowBookById)
+	m.Delete("/delete-book/:bookId([0-9]+)", controller.DeleteBook)
 
-	m.Post("/request", binding.Json(model.BookRequest{}), eng.AddBookRequest)
-	m.Get("/request", eng.ShowBookRequests)
-	m.Get("/request/:id([0-9]+)", eng.ShowBookRequestById)
-	m.Patch("/edit-request", binding.Json(model.BookRequest{}), eng.UpdateBookRequest)
-	m.Delete("/delete-request/:id([0-9]+)", eng.DeleteBookRequest)
+	m.Post("/request", binding.Json(database.BookLoanRequest{}), controller.AddBookRequest)
+	m.Get("/requests", controller.ShowBookRequests)
+	m.Get("/request/:id([0-9]+)", controller.ShowBookRequestById)
+	m.Patch("/edit-request", binding.Json(database.BookLoanRequest{}), controller.UpdateBookRequest)
+	m.Delete("/delete-request/:id([0-9]+)", controller.DeleteBookRequest)
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%v", svr.ServerPort), m))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%v", port), m))
 }
