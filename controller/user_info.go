@@ -11,9 +11,17 @@ import (
 )
 
 func Register(ctx *macaron.Context, user database.User) {
-	// 1st create a user
+	imageName, err := FileUpload(ctx)
+	if err != nil {
+		// don't return, because we ignore if the image is not upload
+		fmt.Println("image not uploaded, because:", err.Error())
+	}
+	// create the user and store in database
+	if imageName != "" {
+		user.Image = imageName
+	}
 	result, err := database.CreateUser(user)
-	if result == nil || err != nil {
+	if err != nil {
 		ctx.JSON(http.StatusNotImplemented, fmt.Sprintf("the user already exist, err: %v", err.Error()))
 		return
 	}
@@ -79,5 +87,35 @@ func Login(ctx *macaron.Context, user database.User) {
 	}
 
 	ctx.JSON(http.StatusOK, tokenString)
+	return
+}
+
+func ChangeUserImage(ctx *macaron.Context) {
+	currentUserType := ctx.Req.Header.Get("current_user_type")
+	if currentUserType != "user" {
+		ctx.JSON(http.StatusNotAcceptable, "user is not authenticated, need bearer token to upload image")
+		return
+	}
+
+	key := ctx.Params(":userId")
+	userId, err := strconv.Atoi(key)
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, err.Error())
+		return
+	}
+
+	imageName, err := FileUpload(ctx)
+	//here we call the function we made to get the image and save it
+	if err != nil {
+		// don't return, because we ignore if the image is not upload
+		fmt.Println("image not uploaded, because:", err.Error())
+	}
+    updatedUser, err := database.ChangeUserImageNameToDB(userId, imageName)
+    if err != nil {
+		ctx.JSON(http.StatusBadGateway, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedUser)
 	return
 }

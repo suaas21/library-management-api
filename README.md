@@ -38,61 +38,22 @@ $ library-management-api start
 
 ## Data Model
 
-There are three types of data model we have introduced to design the api. the following data model are given below : 
+There are four types of data model we have introduced to design the api. the following data model are introduced shortly below : 
 
-- User Model
-``````
-type User struct {
-	Id       int    `xorm:"pk autoincr id" json:"id"`
-	Name     string `xorm:"name" json:"name"`
-	Mail     string `xorm:"mail" json:"mail"`
-	Password string `xorm:"password" json:"password"`
-	PhoneNo  string `xorm:"phone_no" json:"phone_no"`
-	// type of user is handled by UserType : `admin` and `member`
-	UserType string `xorm:"user_type" json:"user_type"`
-
-	CreatedAt time.Time `xorm:"created" json:"created_at" `
-	UpdatedAt time.Time `xorm:"updated" json:"updated_at" `
-}
-``````
-- Book Model
-``````
-type Book struct {
-	Id           int       `xorm:"id pk autoincr" json:"id"`
-	BookName     string    `xorm:"book_name unique" json:"book_name"`
-	Author       string    `xorm:"author" json:"author"`
-	NotAvailable bool      `xorm:"not_available DEFAULT FALSE" json:"not_available"`
-	CreatedAt    time.Time `xorm:"created" json:"created_at"`
-}
-``````
-- Book Loan Model
-``````
-type BookLoanHistory struct {
-	Id     int `xorm:"pk autoincr id" json:"id"`
-	BookId int `xorm:"book_id" json:"book_id"`
-	UserId int `xorm:"user_id" json:"user_id"`
-
-	Returned      bool   `xorm:"returned DEFAULT FALSE" json:"returned"`
-	PurchasedDate string `xorm:"created" json:"purchased_date"`
-	ReturnDate    string `xorm:"update updated " json:"return_date"`
-}
-``````
-- Book Loan Request Model
-``````
-type BookLoanRequest struct {
-	Id         int       `xorm:"id pk autoincr" json:"id"`
-	UserId     int       `xorm:"user_id" json:"user_id"`
-	BookId     int       `xorm:"book_id" json:"book_id"`
-	// requet status: `Pending`, `Rejected` or `Accepted` 
-	Status     string    `xorm:"status" json:"status"`
-}
-``````
+- **User Model :** All user information are described in this model , like: user name, image, phone number, mail,
+  password, user type, created at, updated at etc.
+- **Book Model :** All book information are described in this model, like: book name, author, book available for loan etc.
+- **Book Loan History Model :** This model describes which book will be issued for which user for loan. That's why this model hold the information 
+  of user id and book id. It also describes the book loan data and loan returned date etc.
+- **Book Loan Request Model :** This model describes which book a user will request for. That's why it holds the information of user id and book id.
+  And also status section to describe the request is accepted or rejected.
 
 ## Available API Endpoints
 
 |  Method | API Endpoint  | Authentication Type | Access Permission | Description |
 |---|---|---|---|---|
 |POST| /register | No auth | Any type of user | Registration for user/member |
+|PATCH| /change-user-image | Bearer token | Any type of user | change the user profile image |
 |GET| /login | Basic or Bearer token | Any type of user | Return jwt token in response for successful authentication |
 |GET| /user-profile/{userId} | No auth | Any type of user | Return a specific user in response | 
 |PATCH| /edit-profile | Bearer token | User/Member | Return the updated user profile data in response | 
@@ -145,6 +106,10 @@ Registration for user
 ```console
 $ curl -X POST -v -H "Content-Type:application/json" -d '{"name":"sagor","mail":"sagor@gmail.com","password":"password","phone_no":"017771","user_type":"user"}' http://localhost:4000/register
 ```
+
+Change user profile image 
+
+`curl` is not suitable to hold Content-Type `multipart/form-data`. so we can skip this.
 
 Login for Admin/User(you will get bearer token)
 

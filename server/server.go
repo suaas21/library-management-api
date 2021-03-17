@@ -28,14 +28,12 @@ func StartAPIServer(port string) {
 	m.Use(macaron.Renderer())
 	m.Use(authentication.JwtMiddleWare)
 
-	m.Get("/login", binding.Json(database.User{}), controller.Login)
 	m.Post("/register", binding.Json(database.User{}),controller.Register)
+	m.Patch("/change-user-image/:userId", controller.ChangeUserImage)
+	m.Get("/login", binding.Json(database.User{}), controller.Login)
+
 	m.Get("/user-profile/:userId([0-9]+)", controller.UserProfile)
 	m.Patch("/edit-profile", binding.Json(database.User{}), controller.UpdateUserProfile)
-
-	m.Post("/loan-book", binding.Json(database.BookLoanHistory{}), controller.AddBookLoan)
-	m.Get("/loan-history", binding.Json(database.BookLoanHistory{}), controller.ShowLoanHistory)
-	m.Put("/return-book", binding.Json(database.BookLoanHistory{}), controller.ReturnBook)
 
 	m.Post("/book", binding.Json(database.Book{}), controller.AddBook)
 	m.Patch("/edit-book", binding.Json(database.Book{}), controller.UpdateBook)
@@ -48,6 +46,10 @@ func StartAPIServer(port string) {
 	m.Get("/request/:id([0-9]+)", controller.ShowBookRequestById)
 	m.Patch("/edit-request", binding.Json(database.BookLoanRequest{}), controller.UpdateBookRequest)
 	m.Delete("/delete-request/:id([0-9]+)", controller.DeleteBookRequest)
+
+	m.Post("/loan-book", binding.Json(database.BookLoanHistory{}), controller.AddBookLoan)
+	m.Get("/loan-history", binding.Json(database.BookLoanHistory{}), controller.ShowLoanHistory)
+	m.Put("/return-book", binding.Json(database.BookLoanHistory{}), controller.ReturnBook)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%v", port), m))
 }

@@ -3,6 +3,7 @@ create database library_management;
 create table users (
     id SERIAL PRIMARY KEY,
     name varchar(100) NOT NULL,
+    image varchar(100) NOT NULL,
     mail varchar(50) NOT NULL,
     password varchar(300) NOT NULL,
     phone_no varchar(15) NOT NULL,

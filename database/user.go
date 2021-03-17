@@ -7,6 +7,7 @@ import (
 type User struct {
 	Id       int    `xorm:"pk autoincr id" json:"id"`
 	Name     string `xorm:"name" json:"name"`
+	Image    string `xrom:"image" json:"image"`
 	Mail     string `xorm:"mail" json:"mail"`
 	Password string `xorm:"password" json:"password"`
 	PhoneNo  string `xorm:"phone_no" json:"phone_no"`
@@ -89,4 +90,20 @@ func UpdateUserProfileToDB(user User) (*User, error) {
 	}
 
 	return &retrievedUser, nil
+}
+
+func ChangeUserImageNameToDB(userId int, imageName string) (*User, error) {
+	//change a profile image for a specific user
+	var user User
+	_, err := eng.Where("id = ?", userId).Get(&user)
+	if err != nil {
+		return nil, err
+	}
+	user.Image = imageName
+	//if no error we we change the profile image for our user
+	_, err = eng.Update(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
