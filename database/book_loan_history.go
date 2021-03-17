@@ -149,3 +149,9 @@ func ShowBookLoanHistories() ([]BookLoanHistory, error) {
 	}
 	return bookLoanHistories, nil
 }
+
+func ExportDataFromDB() ([]map[string]string, error) {
+	return eng.QueryString(`select t2.name, t2.mail, t3.book_name, t3.author, t1.purchased_date, t1.returned 
+from book_loan_histories t1 full outer join users t2 on t1.user_id = t2.id 
+full outer join books t3 on t1.book_id = t3.id;`)
+}

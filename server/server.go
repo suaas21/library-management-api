@@ -51,5 +51,7 @@ func StartAPIServer(port string) {
 	m.Get("/loan-history", binding.Json(database.BookLoanHistory{}), controller.ShowLoanHistory)
 	m.Put("/return-book", binding.Json(database.BookLoanHistory{}), controller.ReturnBook)
 
+	m.Get("/csv", controller.ExportDataToCSV)
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%v", port), m))
 }

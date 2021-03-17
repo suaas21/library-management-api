@@ -80,7 +80,6 @@ There are four types of data model we have introduced to design the api. the fol
 |db-name|-|library_management| library-management-api --db-name=library_management | database name |
 |db-user|-|postgres| library-management-api --db-user=postgres | database user |
 
-
 ## Some Sample Curl commands to the server
 
 Initialize database 
@@ -211,3 +210,12 @@ Delete book with given id
 ```console
 $ curl -X DELETE -H "Authorization: Bearer <admin berear token>" http://localhost:4000/delete-book/1
 ``` 
+
+Export Loan Data to CSV format
+
+Partially implemented data export and convert to csv format. This feature is not ready yet.
+You can export all loan book data to csv file by using the below curl cmd:
+
+```console
+$ curl -X GET http://localhost:4000/csv
+```
