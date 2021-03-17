@@ -12,20 +12,12 @@ type BookLoanRequest struct {
 	Status     string    `xorm:"status" json:"status"`
 }
 
-type BookLoanRequests struct {
-	BookRequests []BookLoanRequest
-}
-
 func (BookLoanRequest) TableName() string {
 	return "book_loan_requests"
 }
 
-func (BookLoanRequests) TableName() string {
-	return "book_loan_requests"
-}
-
 func AddBookRequestToDB(bookLoanRequest BookLoanRequest) (*BookLoanRequest, error) {
-	fmt.Println(bookLoanRequest)
+	// insert new into the databases then check if exit in the databases
 	_, err := eng.Insert(bookLoanRequest)
 	if err != nil {
 		return nil, err
@@ -38,18 +30,18 @@ func AddBookRequestToDB(bookLoanRequest BookLoanRequest) (*BookLoanRequest, erro
 	return &bookLoanRequest, nil
 }
 
-func ShowBookRequestsFromDB() (*BookLoanRequests, error) {
-	bookLoanRequestsdb := BookLoanRequests{}
+func ShowBookRequestsFromDB() ([]BookLoanRequest, error) {
+	//  get all book from database
 	var bookLoanRequests []BookLoanRequest
 	err := eng.Find(&bookLoanRequests)
 	if err != nil {
 		return nil, err
 	}
-	bookLoanRequestsdb.BookRequests = append(bookLoanRequestsdb.BookRequests, bookLoanRequests...)
-	return &bookLoanRequestsdb, nil
+	return bookLoanRequests, nil
 }
 
 func ShowBookRequestByIdFromDB(requestId int) (*BookLoanRequest, error) {
+	// find specific book by using book id
 	var bookLoanRequest BookLoanRequest
 	okk, _ := eng.Where("id=?", requestId).Get(&bookLoanRequest)
 	if okk {
@@ -59,6 +51,10 @@ func ShowBookRequestByIdFromDB(requestId int) (*BookLoanRequest, error) {
 }
 
 func UpdateBookRequestToDB(userId, bookId int) (*BookLoanRequest, error) {
+	// 1st find the user and book by using the user id and book id respectively
+	// if found both and the book is available on the book database identified by `NotAvailable` = `false`
+	// then update the bookLoanRequest status = `Accepted`. that means book loan will be issued to the user.
+	// beside status will be `Rejected` that means book loan will not be issued.
 	var retrievedBook Book
 	var retrievedUser User
 	bookLoanRequest := BookLoanRequest{
@@ -91,11 +87,12 @@ func UpdateBookRequestToDB(userId, bookId int) (*BookLoanRequest, error) {
 }
 
 func DeleteBookRequestFromDB(requestId int) (bool, error) {
+	// delete the specific book by using book id
 	session := eng.NewSession()
 	defer session.Close()
 	err := session.Begin()
 
-	ok, err := eng.Id(requestId).Delete(&BookLoanRequest{})
+	ok, err := session.Id(requestId).Delete(&BookLoanRequest{})
 	if err != nil {
 		session.Rollback()
 		return false, errors.New("roll backed")

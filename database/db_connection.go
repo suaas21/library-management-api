@@ -38,11 +38,14 @@ func InitializeDB() {
 
 	eng.SetTableMapper(core.SameMapper{})
 	eng.SetColumnMapper(core.SnakeMapper{})
+	// sync data table to the database
 	if err := eng.Sync2(tables...); err != nil {
 		fmt.Println("Unable to sync struct to store table: reason: ", err.Error())
 	}
 }
 func GetPostgresClient() (*xorm.Engine, error) {
+	// generate database connection string
+	// then connect to the database
 	cnnstr := fmt.Sprintf("user=%s password=%s host=127.0.0.1 port=%v dbname=%s sslmode=disable", Cfg.BDUser, Cfg.DBPassword, Cfg.DBPort, Cfg.DBName)
 	return xorm.NewEngine("postgres", cnnstr)
 }

@@ -25,7 +25,8 @@ func AddBook(ctx *macaron.Context, book database.Book) {
 }
 
 func ShowBooks(ctx *macaron.Context) {
-	resultBooks, err := database.ShowBooksFromDB()
+	condition := ctx.Query("author")
+	resultBooks, err := database.ShowBooksFromDB(condition)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 		return

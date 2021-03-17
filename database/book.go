@@ -14,19 +14,12 @@ type Book struct {
 	CreatedAt    time.Time `xorm:"created" json:"created_at"`
 }
 
-type Books struct {
-	Books []Book
-}
-
 func (Book) TableName() string {
 	return "books"
 }
 
-func (Books) TableName() string {
-	return "books"
-}
-
 func AddBookToDB(book Book) (*Book, error) {
+	// insert new book in the databases
 	_, err := eng.Insert(book)
 	if err != nil {
 		return nil, err
@@ -39,18 +32,27 @@ func AddBookToDB(book Book) (*Book, error) {
 	return &book, nil
 }
 
-func ShowBooksFromDB() (*Books, error) {
-	booksdb := Books{}
+func ShowBooksFromDB(condition string) ([]Book, error) {
+	// get all book from database in two away
+	// 1. searching by author , if getting `condition` value
+	// 2. no filtering, if getting `condition` empty
 	var books []Book
-	err := eng.Find(&books)
-	if err != nil {
-		return nil, err
+	if condition == "" {
+		err := eng.Find(&books)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err := eng.Where("author=?", condition).Find(&books)
+		if err != nil {
+			return nil, err
+		}
 	}
-	booksdb.Books = append(booksdb.Books, books...)
-	return &booksdb, nil
+	return books, nil
 }
 
 func ShowBookByIdFromDB(bookId int) (*Book, error) {
+	// get all book by book id
 	var book Book
 	okk, _ := eng.Where("id=?", bookId).Get(&book)
 	if okk {
@@ -60,11 +62,14 @@ func ShowBookByIdFromDB(bookId int) (*Book, error) {
 }
 
 func DeleteBookFromDB(bookId int) (bool, error) {
+	// delete a specific book by using book id
 	session := eng.NewSession()
 	defer session.Close()
-	err := session.Begin()
+	if err := session.Begin(); err != nil {
+		return false, err
+	}
 
-	ok, err := eng.Id(bookId).Delete(&Book{})
+	ok, err := session.Id(bookId).Delete(&Book{})
 	if err != nil {
 		session.Rollback()
 		return false, errors.New("roll backed")
@@ -87,6 +92,8 @@ func DeleteBookFromDB(bookId int) (bool, error) {
 }
 
 func UpdateBookToDB(book Book) (*Book, error) {
+	// update book author by using book name
+	// book name is unique, so we are not permitted to update it
 	var retrievedBook Book
 	// 1st find the book from database using bookId and returned = FALSE
 	ok, err := eng.Where("book_name=?", book.BookName).Get(&retrievedBook)

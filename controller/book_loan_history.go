@@ -30,13 +30,13 @@ func AddBookLoan(ctx *macaron.Context, bookHistory database.BookLoanHistory) {
 }
 
 func ShowLoanHistory(ctx *macaron.Context) {
-	loanHistories, err := database.ShowBookLoanHistories()
+	bookLoanHistories, err := database.ShowBookLoanHistories()
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, loanHistories)
+	ctx.JSON(http.StatusOK, bookLoanHistories)
 	return
 }
 

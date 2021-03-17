@@ -11,6 +11,7 @@ import (
 )
 
 func Register(ctx *macaron.Context, user database.User) {
+	// 1st create a user
 	result, err := database.CreateUser(user)
 	if result == nil || err != nil {
 		ctx.JSON(http.StatusNotImplemented, fmt.Sprintf("the user already exist, err: %v", err.Error()))

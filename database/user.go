@@ -17,18 +17,12 @@ type User struct {
 	UpdatedAt time.Time `xorm:"updated" json:"updated_at" `
 }
 
-type Users struct {
-	Users []User
-}
-
 func (User) TableName() string {
-	return "users"
-}
-func (Users) TableName() string {
 	return "users"
 }
 
 func CreateUser(user User) (*User, error) {
+	// create a user if not present in the databases
 	var retrievedUser User
 	ok, err := eng.Where("mail= ?", user.Mail).Get(&retrievedUser)
 	if !ok || err != nil {
@@ -48,6 +42,7 @@ func CreateUser(user User) (*User, error) {
 }
 
 func GetUserInfo(userId int) (*User, error) {
+	// get user information from databases
 	var user User
 	ok, err := eng.Where("id= ?", userId).Get(&user)
 	if !ok || err != nil {
@@ -57,6 +52,7 @@ func GetUserInfo(userId int) (*User, error) {
 }
 
 func GetUserLoginInfo(user User) (*User, error) {
+	// get user login info from databases
 	var retrievedUser User
 	ok, err := eng.Where("mail = ? AND password = ?", user.Mail, user.Password).Get(&retrievedUser)
 	if !ok || err != nil {
@@ -67,6 +63,9 @@ func GetUserLoginInfo(user User) (*User, error) {
 }
 
 func UpdateUserProfileToDB(user User) (*User, error) {
+	// update user profile info into databases
+	// user can update her/his profile like name, phone number or password.
+	// mail is unique nad not updatable.
 	var retrievedUser User
 	okk, err := eng.Where("mail = ? ", user.Mail).Get(&retrievedUser)
 	if err != nil {

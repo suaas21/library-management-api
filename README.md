@@ -103,6 +103,7 @@ type BookLoanRequest struct {
 |PATCH| /edit-book | Bearer token | Admin | Admin can update book author |
 |GET| /book/{bookId} | No Auth | Any type of user  | Users can view specific book |
 |GET| /books | No Auth | Any type of user  | Users can view all listed book |
+|GET| /books?author=azad | No Auth | Any type of user | search book by author | 
 |DELETE| /delete-book/{id} | Bearer token | Admin | Delete the book data and returned the updated data in response | 
 |POST| /request | Bearer token | User | User can request for book loan |
 |GET| /requests | No Auth | Any type of user | User/Admin can get requested book loan info |
@@ -209,6 +210,12 @@ Get a specific book with id 1
 ```console
 $ curl -X GET http://localhost:4000/book/1
 ``` 
+
+Search book by author 
+
+```console
+$ curl -X GET  http://localhost:4000/books?author=azad
+```
 
 Request book loan
 

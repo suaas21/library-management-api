@@ -81,7 +81,7 @@ func GenerateJWT(userMail string, userType string, userId int) (string, error) {
 	//signing method declare
 	token := jwt.New(jwt.SigningMethodHS256)
 
-	//passing the parameter that i want to keep i my token
+	//passing the parameter that i want to keep my token
 	claims := token.Claims.(jwt.MapClaims)
 	claims["userMail"] = userMail
 	claims["userType"] = userType

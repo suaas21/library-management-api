@@ -16,19 +16,14 @@ type BookLoanHistory struct {
 	ReturnDate    string `xorm:"update updated " json:"return_date"`
 }
 
-type BookLoanHistories struct {
-	BookLoanHistories []BookLoanHistory
-}
-
-func (BookLoanHistories) TableName() string {
-	return "book_loan_histories"
-}
-
 func (BookLoanHistory) TableName() string {
 	return "book_loan_histories"
 }
 
 func AddBookLoanToDB(userId int, bookId int) (*BookLoanHistory, error) {
+	// first find the user and book by using the user id and book id
+	// if found and if book `NotAvailable` is `true` then just return because book is not available for loan
+	// other wise issued the book loan for the user by setting book with `NotAvailable` `true`. because tracking the book availability in the store.
 	var user User
 	var book Book
 	isUser, err := eng.ID(userId).Get(&user)
@@ -63,7 +58,7 @@ func AddBookLoanToDB(userId int, bookId int) (*BookLoanHistory, error) {
 	}
 
 	// update the book store
-	_, err = eng.Id(bookId).UseBool().Update(&book)
+	_, err = session.Id(bookId).UseBool().Update(&book)
 	if err != nil {
 		session.Rollback()
 		return nil, err
@@ -92,6 +87,9 @@ func AddBookLoanToDB(userId int, bookId int) (*BookLoanHistory, error) {
 func UpdateBookLoanHistory(userId int, bookId int) (*BookLoanHistory, error) {
 	var bookHistory BookLoanHistory
 	// 1st find the bookHistory from database using userId and bookId and returned = FALSE
+	// then find the book by using book id.
+	// if the specific book found in the database then update the book `NotAvailable` = false. that means book is set available for loan
+	// then update the specific bookHistory `Returned` = `true` and `ReturnedDate`.
 	ok, err := eng.Where("book_id=? AND user_id=? AND returned = FALSE", bookId, userId).Get(&bookHistory)
 	if err != nil {
 		return nil, err
@@ -142,13 +140,12 @@ func UpdateBookLoanHistory(userId int, bookId int) (*BookLoanHistory, error) {
 	return nil, fmt.Errorf("no returned book data found")
 }
 
-func ShowBookLoanHistories() (*BookLoanHistories, error) {
-	bookLoanHistories := BookLoanHistories{}
-	var bookHistories []BookLoanHistory
-	err := eng.Find(&bookHistories)
+func ShowBookLoanHistories() ([]BookLoanHistory, error) {
+	// get all book loan history from databases
+	var bookLoanHistories []BookLoanHistory
+	err := eng.Find(&bookLoanHistories)
 	if err != nil {
 		return nil, err
 	}
-	bookLoanHistories.BookLoanHistories = append(bookLoanHistories.BookLoanHistories, bookHistories...)
-	return &bookLoanHistories, nil
+	return bookLoanHistories, nil
 }
